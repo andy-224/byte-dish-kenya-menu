@@ -66,7 +66,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [tableId]);
 
-  const addItem = (item: MenuItem) => {
+  const addItem = (item: CartItem) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
       
@@ -78,7 +78,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         return prevItems.map((i) => 
           i.id === item.id 
-            ? { ...i, quantity: i.quantity + 1 } 
+            ? { ...i, quantity: i.quantity + item.quantity } 
             : i
         );
       } else {
@@ -87,7 +87,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: `${item.name} added to your cart`,
         });
         
-        return [...prevItems, { ...item, quantity: 1 }];
+        return [...prevItems, item];
       }
     });
   };
