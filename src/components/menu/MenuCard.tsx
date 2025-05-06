@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Minus } from "lucide-react";
-import { useCart, MenuItem } from "@/contexts/CartContext";
+import { useCart, MenuItem, CartItem } from "@/contexts/CartContext";
 
 interface MenuCardProps {
   item: MenuItem;
@@ -26,11 +26,14 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
   const [specialInstructions, setSpecialInstructions] = useState("");
 
   const handleAddToCart = () => {
-    addItem({
+    // Create a CartItem from the MenuItem
+    const cartItem: CartItem = {
       ...item,
       quantity,
       specialInstructions
-    });
+    };
+    
+    addItem(cartItem);
     setIsOpen(false);
     // Reset values after adding to cart
     setQuantity(1);

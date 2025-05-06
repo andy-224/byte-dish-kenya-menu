@@ -18,7 +18,7 @@ export type CartItem = MenuItem & {
 
 type CartContextType = {
   items: CartItem[];
-  addItem: (item: MenuItem) => void;
+  addItem: (item: CartItem) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   updateInstructions: (itemId: string, instructions: string) => void;
