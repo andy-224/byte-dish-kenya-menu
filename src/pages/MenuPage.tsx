@@ -44,38 +44,49 @@ const MenuPage = () => {
   }, [searchTerm, activeCategory]);
 
   return (
-    <div className="min-h-screen bg-bytedish-soft-gray">
-      <div className="bytedish-container">
+    <div className="min-h-screen bg-background overflow-hidden relative">
+      {/* Dynamic background elements */}
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(155,135,245,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,rgba(155,135,245,0.1)_0%,transparent_60%)] pointer-events-none"></div>
+      <div className="fixed top-[20%] right-[10%] w-32 h-32 rounded-full bg-primary/5 blur-[100px] animate-pulse"></div>
+      <div className="fixed bottom-[30%] left-[15%] w-40 h-40 rounded-full bg-bytedish-neon-blue/10 blur-[120px] animate-pulse"></div>
+      
+      {/* Floating decoration elements */}
+      <div className="fixed top-[15%] right-[25%] w-2 h-2 rounded-full bg-bytedish-neon-pink shadow-[0_0_15px_5px_rgba(255,107,246,0.3)] animate-float-slow"></div>
+      <div className="fixed bottom-[25%] left-[20%] w-3 h-3 rounded-full bg-bytedish-neon-green shadow-[0_0_15px_8px_rgba(107,255,139,0.2)] animate-float-med"></div>
+      <div className="fixed top-[45%] left-[15%] w-2 h-2 rounded-full bg-bytedish-neon-blue shadow-[0_0_15px_5px_rgba(107,170,255,0.3)] animate-float-fast"></div>
+      
+      <div className="bytedish-container animate-fade-in">
         <div className="flex justify-between items-center mb-4">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="p-0" 
+            className="p-0 hover:bg-white/10" 
             onClick={() => navigate("/")}
           >
             <ArrowLeft className="h-5 w-5 mr-1" />
-            Home
+            <span className="text-gradient">Home</span>
           </Button>
           
           <div className="text-right">
-            <h2 className="font-semibold">{tableId?.replace('-', ' ')}</h2>
-            <p className="text-xs text-gray-500">ByteDish Restaurant</p>
+            <h2 className="font-semibold text-gradient">{tableId?.replace('-', ' ')}</h2>
+            <p className="text-xs text-gray-400">ByteDish Restaurant</p>
           </div>
         </div>
         
-        <h1 className="text-2xl font-bold mt-4 mb-4">Our Menu</h1>
+        <h1 className="text-3xl font-bold mt-4 mb-6 text-gradient">Our Menu</h1>
         
-        <div className="mb-4 relative">
+        <div className="mb-6 relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           <Input 
             placeholder="Search menu..." 
-            className="pl-9" 
+            className="pl-9 glass-morphism bg-transparent border-white/10 focus:border-primary/50 text-white" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         
-        <ScrollArea className="mb-4 pb-1">
+        <ScrollArea className="mb-6 pb-2">
           <div className="flex space-x-2 py-1">
             {categories.map((category) => (
               <button
@@ -91,21 +102,26 @@ const MenuPage = () => {
           </div>
         </ScrollArea>
         
-        <div className="space-y-4 pb-20">
+        <div className="space-y-5 pb-20">
           {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <MenuCard key={item.id} item={item} />
+            filteredItems.map((item, index) => (
+              <MenuCard 
+                key={item.id} 
+                item={item} 
+                className={`animate-slide-in`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              />
             ))
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No items found matching your search</p>
+            <div className="text-center py-8 neo-blur rounded-xl animate-fade-in">
+              <p className="text-gray-300">No items found matching your search</p>
             </div>
           )}
         </div>
         
         {totalItems > 0 && (
           <Button 
-            className="cart-button" 
+            className="cart-button animate-pulse-glow" 
             onClick={() => navigate("/cart")}
           >
             <ShoppingCart className="h-5 w-5 mr-1" />
