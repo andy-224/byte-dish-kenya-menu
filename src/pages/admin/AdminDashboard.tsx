@@ -1,208 +1,143 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { 
-  Clock,
-  Calendar,
-  ShoppingBag,
-  Users,
-  CreditCard,
+import {
+  Home,
   Settings,
-  Menu,
+  ShoppingBag,
+  Menu as MenuIcon,
   Table,
-  LogOut
+  AlertCircle,
+  Clock,
+  User,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import AdminLayout from "@/components/admin/AdminLayout";
+import RealTimeQueueView from "@/components/admin/RealTimeQueueView";
 
 const AdminDashboard = () => {
   const { orders, userRole } = useCart();
-  
-  // Get today's orders
-  const todayOrders = orders.filter(order => {
-    const orderDate = new Date(order.timestamp).toDateString();
-    const todayDate = new Date().toDateString();
-    return orderDate === todayDate;
-  });
+  const [pendingOrders, setPendingOrders] = useState(0);
+  const [todayOrders, setTodayOrders] = useState(0);
+  const [todayRevenue, setTodayRevenue] = useState(0);
 
-  // Get pending orders (not served yet)
-  const pendingOrders = orders.filter(order => order.status !== "served");
-  
-  // Calculate total sales
-  const totalSales = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-
-  const stats = [
-    {
-      title: "Today's Orders",
-      value: todayOrders.length,
-      icon: <Calendar className="h-6 w-6 text-bytedish-neon-green" />,
-      color: "bg-bytedish-neon-green/10 border-bytedish-neon-green/20"
-    },
-    {
-      title: "Pending Orders",
-      value: pendingOrders.length,
-      icon: <Clock className="h-6 w-6 text-bytedish-neon-blue" />,
-      color: "bg-bytedish-neon-blue/10 border-bytedish-neon-blue/20"
-    },
-    {
-      title: "Total Sales",
-      value: `KES ${totalSales.toLocaleString()}`,
-      icon: <CreditCard className="h-6 w-6 text-bytedish-neon-pink" />,
-      color: "bg-bytedish-neon-pink/10 border-bytedish-neon-pink/20"
-    },
-    {
-      title: "Active Tables",
-      value: new Set(orders.map(order => order.tableId)).size,
-      icon: <Table className="h-6 w-6 text-primary" />,
-      color: "bg-primary/10 border-primary/20"
-    }
-  ];
-
-  const quickActions = [
-    {
-      title: "Menu Management",
-      description: "Add or edit menu items and categories",
-      icon: <Menu className="h-10 w-10 text-bytedish-neon-blue" />,
-      path: "/admin/menu",
-      color: "from-bytedish-neon-blue/20 to-transparent"
-    },
-    {
-      title: "Order Management",
-      description: "View and update order statuses",
-      icon: <ShoppingBag className="h-10 w-10 text-bytedish-neon-green" />,
-      path: "/admin/orders",
-      color: "from-bytedish-neon-green/20 to-transparent"
-    },
-    {
-      title: "Table Management",
-      description: "Configure tables and generate QR codes",
-      icon: <Table className="h-10 w-10 text-bytedish-neon-pink" />,
-      path: "/admin/tables",
-      color: "from-bytedish-neon-pink/20 to-transparent",
-      adminOnly: true
-    },
-    {
-      title: "Settings",
-      description: "Configure system settings",
-      icon: <Settings className="h-10 w-10 text-primary" />,
-      path: "/admin/settings",
-      color: "from-primary/20 to-transparent",
-      adminOnly: true
-    }
-  ];
+  // Calculate dashboard stats
+  useEffect(() => {
+    // Count pending orders (not served)
+    const pending = orders.filter(order => order.status !== "served").length;
+    setPendingOrders(pending);
+    
+    // Count today's orders and revenue
+    const today = new Date().setHours(0, 0, 0, 0);
+    const todaysOrders = orders.filter(order => 
+      new Date(order.timestamp).getTime() >= today
+    );
+    
+    setTodayOrders(todaysOrders.length);
+    setTodayRevenue(
+      todaysOrders.reduce((sum, order) => sum + order.totalPrice, 0)
+    );
+  }, [orders]);
 
   return (
-    <AdminLayout title="Dashboard" subtitle="Welcome to ByteDish Admin">
+    <AdminLayout title="Dashboard" subtitle="Welcome to ByteDish Admin Panel">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="neo-blur p-6 rounded-xl border border-white/10 flex items-center justify-between">
+          <div>
+            <div className="text-sm text-gray-400 mb-1">Pending Orders</div>
+            <div className="text-3xl font-bold text-gradient">{pendingOrders}</div>
+          </div>
+          <div className="h-14 w-14 rounded-full bg-red-500/20 flex items-center justify-center">
+            <ShoppingBag className="h-6 w-6 text-red-400" />
+          </div>
+        </div>
+        
+        <div className="neo-blur p-6 rounded-xl border border-white/10 flex items-center justify-between">
+          <div>
+            <div className="text-sm text-gray-400 mb-1">Today's Orders</div>
+            <div className="text-3xl font-bold text-gradient">{todayOrders}</div>
+          </div>
+          <div className="h-14 w-14 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <Clock className="h-6 w-6 text-blue-400" />
+          </div>
+        </div>
+        
+        <div className="neo-blur p-6 rounded-xl border border-white/10 flex items-center justify-between">
+          <div>
+            <div className="text-sm text-gray-400 mb-1">Today's Revenue</div>
+            <div className="text-3xl font-bold text-gradient">${todayRevenue.toFixed(2)}</div>
+          </div>
+          <div className="h-14 w-14 rounded-full bg-green-500/20 flex items-center justify-center">
+            <User className="h-6 w-6 text-green-400" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Quick access cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat, index) => (
-          <div 
-            key={index} 
-            className={`neo-blur p-4 rounded-xl ${stat.color} animate-slide-in`}
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-gray-400">{stat.title}</p>
-                <p className="text-2xl font-bold text-gradient">{stat.value}</p>
+        <Link to="/admin/orders" className="neo-blur border border-white/10 rounded-lg p-6 hover:bg-white/5 transition-colors">
+          <ShoppingBag className="h-8 w-8 text-bytedish-neon-blue mb-4" />
+          <h3 className="font-semibold text-lg mb-1">Orders</h3>
+          <p className="text-sm text-gray-400">Manage customer orders</p>
+        </Link>
+        
+        <Link to="/admin/menu" className="neo-blur border border-white/10 rounded-lg p-6 hover:bg-white/5 transition-colors">
+          <MenuIcon className="h-8 w-8 text-bytedish-neon-blue mb-4" />
+          <h3 className="font-semibold text-lg mb-1">Menu</h3>
+          <p className="text-sm text-gray-400">Update menu items</p>
+        </Link>
+        
+        <Link to="/admin/tables" className="neo-blur border border-white/10 rounded-lg p-6 hover:bg-white/5 transition-colors">
+          <Table className="h-8 w-8 text-bytedish-neon-blue mb-4" />
+          <h3 className="font-semibold text-lg mb-1">Tables</h3>
+          <p className="text-sm text-gray-400">Manage tables & QR codes</p>
+        </Link>
+        
+        <Link to="/admin/operator" className="neo-blur border border-white/10 rounded-lg p-6 hover:bg-white/5 transition-colors">
+          <AlertCircle className="h-8 w-8 text-bytedish-neon-blue mb-4" />
+          <h3 className="font-semibold text-lg mb-1">Operator Tools</h3>
+          <p className="text-sm text-gray-400">Service issues & shifts</p>
+        </Link>
+      </div>
+      
+      {/* Quick view of pending orders */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Latest Orders</h2>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/admin/orders">View All</Link>
+          </Button>
+        </div>
+        
+        <RealTimeQueueView />
+      </div>
+      
+      {/* Admin-only section */}
+      {userRole === "admin" && (
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Admin Tools</h2>
+          </div>
+          
+          <div className="neo-blur border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Settings className="h-6 w-6 text-primary mr-4" />
+                <div>
+                  <h3 className="font-semibold">System Settings</h3>
+                  <p className="text-sm text-gray-400">Configure app settings and preferences</p>
+                </div>
               </div>
-              <div className="p-3 rounded-full neo-blur">
-                {stat.icon}
-              </div>
+              
+              <Button asChild variant="default" size="sm" className="bg-primary">
+                <Link to="/admin/settings">Open Settings</Link>
+              </Button>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-xl font-semibold text-gradient mb-4">Quick Actions</h2>
-          <div className="space-y-4">
-            {quickActions
-              .filter(action => !action.adminOnly || userRole === "admin")
-              .map((action, index) => (
-                <Link 
-                  key={index} 
-                  to={action.path}
-                  className="block neo-blur p-4 rounded-xl border border-white/10 hover:border-white/20 transition-all hover:-translate-y-1 animate-fade-in"
-                  style={{ animationDelay: `${index * 0.15}s` }}
-                >
-                  <div className="flex items-center">
-                    <div className={`p-4 rounded-xl bg-gradient-to-br ${action.color} mr-4`}>
-                      {action.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gradient">{action.title}</h3>
-                      <p className="text-sm text-gray-400">{action.description}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            }
-          </div>
         </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-gradient mb-4">Recent Orders</h2>
-          {orders.length > 0 ? (
-            <div className="neo-blur rounded-xl overflow-hidden border border-white/10">
-              <div className="max-h-80 overflow-y-auto scrollbar-none">
-                <table className="w-full">
-                  <thead className="bg-black/30 sticky top-0">
-                    <tr className="text-left">
-                      <th className="p-4 text-sm font-medium text-gray-400">Table</th>
-                      <th className="p-4 text-sm font-medium text-gray-400">Time</th>
-                      <th className="p-4 text-sm font-medium text-gray-400">Status</th>
-                      <th className="p-4 text-sm font-medium text-gray-400">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders
-                      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                      .slice(0, 5)
-                      .map((order, index) => (
-                        <tr 
-                          key={order.id} 
-                          className="border-t border-white/5 hover:bg-white/5 transition-colors"
-                        >
-                          <td className="p-4">{order.tableId}</td>
-                          <td className="p-4 text-sm text-gray-400">
-                            {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === "placed" ? "bg-yellow-500/20 text-yellow-300" :
-                              order.status === "received" ? "bg-blue-500/20 text-blue-300" :
-                              order.status === "preparing" ? "bg-orange-500/20 text-orange-300" :
-                              order.status === "ready" ? "bg-purple-500/20 text-purple-300" :
-                              "bg-green-500/20 text-green-300"
-                            }`}>
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="p-4 font-medium">KES {order.totalPrice.toLocaleString()}</td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-4 bg-black/20 border-t border-white/10">
-                <Link 
-                  to="/admin/orders"
-                  className="text-sm text-bytedish-neon-blue hover:text-white transition-colors"
-                >
-                  View all orders →
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="neo-blur rounded-xl p-8 text-center border border-white/10">
-              <ShoppingBag className="h-12 w-12 text-gray-500 mx-auto mb-3" />
-              <p className="text-gray-400">No orders yet</p>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </AdminLayout>
   );
 };

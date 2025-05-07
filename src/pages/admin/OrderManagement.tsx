@@ -20,17 +20,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-import { FilterX, Clock, Search, ShoppingBag, Check, X, Truck, ChefHat } from "lucide-react";
+import { FilterX, Clock, Search, ShoppingBag, Check, X, Truck, ChefHat, Edit } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import QuickEditOrder from "@/components/admin/QuickEditOrder";
 
 const OrderManagement = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<string>("15");
+  const [editOrderId, setEditOrderId] = useState<string | null>(null);
   
   const { orders, updateOrderStatus, updatePaymentStatus } = useCart();
   const { toast } = useToast();
+  
+  // Find the order being edited
+  const orderBeingEdited = useMemo(() => {
+    return editOrderId ? orders.find(order => order.id === editOrderId) || null : null;
+  }, [editOrderId, orders]);
   
   const filteredOrders = useMemo(() => {
     let filtered = [...orders];
@@ -99,6 +106,19 @@ const OrderManagement = () => {
     }
     
     return null;
+  };
+  
+  const handleEditOrder = (order: Order) => {
+    // Only allow editing for placed or received orders
+    if (order.status === "placed" || order.status === "received") {
+      setEditOrderId(order.id);
+    } else {
+      toast({
+        title: "Cannot edit order",
+        description: "Only new or received orders can be edited",
+        variant: "destructive"
+      });
+    }
   };
   
   const formatOrderTime = (timestamp: string) => {
@@ -267,6 +287,19 @@ const OrderManagement = () => {
                           )}
                         </Button>
                         
+                        {/* Quick Edit Button - only for placed or received orders */}
+                        {(order.status === "placed" || order.status === "received") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs neo-blur bg-amber-500/20 text-amber-300 border-amber-500/30"
+                            onClick={() => handleEditOrder(order)}
+                          >
+                            <Edit className="h-3.5 w-3.5 mr-1" />
+                            Edit
+                          </Button>
+                        )}
+                        
                         {getNextStatus(order.status) && (
                           <Button
                             size="sm"
@@ -361,6 +394,15 @@ const OrderManagement = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Quick Edit Order Dialog */}
+      {orderBeingEdited && (
+        <QuickEditOrder
+          order={orderBeingEdited}
+          isOpen={!!editOrderId}
+          onClose={() => setEditOrderId(null)}
+        />
+      )}
     </AdminLayout>
   );
 };

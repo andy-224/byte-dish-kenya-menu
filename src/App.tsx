@@ -15,6 +15,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import MenuManagement from "./pages/admin/MenuManagement";
 import TableManagement from "./pages/admin/TableManagement";
 import OrderManagement from "./pages/admin/OrderManagement";
+import SettingsPage from "./pages/admin/SettingsPage";
+import OperatorDashboard from "./pages/admin/OperatorDashboard";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import { CartProvider } from "./contexts/CartContext";
 
@@ -32,6 +34,7 @@ const App = () => (
             <Route path="/" element={<HomePage />} />
             <Route path="/scan" element={<QRScanPage />} />
             <Route path="/menu/:tableId" element={<MenuPage />} />
+            <Route path="/menu" element={<Navigate to="/scan" replace />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/order-status/:orderId" element={<OrderStatusPage />} />
             
@@ -41,6 +44,8 @@ const App = () => (
             <Route path="/admin/menu" element={<ProtectedRoute><MenuManagement /></ProtectedRoute>} />
             <Route path="/admin/tables" element={<ProtectedRoute requireAdmin={true}><TableManagement /></ProtectedRoute>} />
             <Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
+            <Route path="/admin/settings" element={<ProtectedRoute requireAdmin={true}><SettingsPage /></ProtectedRoute>} />
+            <Route path="/admin/operator" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
