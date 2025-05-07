@@ -79,30 +79,35 @@ const TableManagement = () => {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw QR code
-    const qrCanvas = document.createElement("canvas");
-    new QRCodeSVG({
-      value: table.qrLink,
-      size: 180,
-      level: "H"
-    }).toCanvas(qrCanvas);
+    // Draw QR code - Fix: Use a different approach to create QR code for download
+    // Since QRCodeSVG is a React component, not a constructor
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(table.qrLink)}`;
     
-    ctx.drawImage(qrCanvas, 10, 10, 180, 180);
+    // Create an image element to load the QR code
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      // Draw the QR code image on canvas
+      ctx.drawImage(img, 10, 10, 180, 180);
+      
+      // Add table info text
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 16px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(`Table ${table.id}: ${table.name}`, canvas.width / 2, 210);
+      
+      ctx.font = "12px Arial";
+      ctx.fillText("Scan to order", canvas.width / 2, 235);
 
-    // Add table info text
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 16px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(`Table ${table.id}: ${table.name}`, canvas.width / 2, 210);
+      // Create download link
+      const link = document.createElement("a");
+      link.download = `table-${table.id}-qr.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
     
-    ctx.font = "12px Arial";
-    ctx.fillText("Scan to order", canvas.width / 2, 235);
-
-    // Create download link
-    const link = document.createElement("a");
-    link.download = `table-${table.id}-qr.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    // Load the QR code image
+    img.src = qrCodeUrl;
   };
 
   return (

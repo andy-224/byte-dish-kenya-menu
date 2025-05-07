@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import MenuCard from "@/components/menu/MenuCard";
-import { menuItems } from "@/data/mockData";
+import { mockMenuItems } from "@/data/mockData"; // Fixed import name
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
@@ -11,7 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import RepeatOrderOption from "@/components/RepeatOrderOption"; // Add this import
+import RepeatOrderOption from "@/components/RepeatOrderOption";
 
 const MenuPage = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -29,8 +29,8 @@ const MenuPage = () => {
   // Extract unique categories from menuItems
   useEffect(() => {
     const uniqueCategories = Array.from(
-      new Set(menuItems.map((item) => item.category))
-    );
+      new Set(mockMenuItems.map((item) => item.category))
+    ) as string[]; // Add type assertion to fix the unknown[] issue
     setCategories(uniqueCategories);
   }, []);
 
@@ -62,7 +62,7 @@ const MenuPage = () => {
         {categories.map((category) => (
           <TabsContent key={category} value={category} className="mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {menuItems
+              {mockMenuItems
                 .filter((item) => item.category === category)
                 .map((item) => (
                   <MenuCard key={item.id} item={item} />
