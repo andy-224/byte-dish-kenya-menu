@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -44,6 +43,7 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
     return location.pathname === path;
   };
 
+  // Define base menu items that both operators and admins can access
   const menuItems = [
     {
       title: "Dashboard",
@@ -60,20 +60,23 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       icon: <ShoppingBag className="h-5 w-5" />,
       path: "/admin/orders",
     },
-    {
+  ];
+
+  // Add Table Management only for admin role
+  if (userRole === "admin") {
+    menuItems.push({
       title: "Table Management",
       icon: <Table className="h-5 w-5" />,
       path: "/admin/tables",
-    },
-  ];
-
-  if (userRole === "admin") {
-    menuItems.push({
-      title: "Settings",
-      icon: <Settings className="h-5 w-5" />,
-      path: "/admin/settings",
     });
   }
+
+  // Add Settings for both roles, but we'll handle permissions inside the settings page
+  menuItems.push({
+    title: "Settings",
+    icon: <Settings className="h-5 w-5" />,
+    path: "/admin/settings",
+  });
 
   return (
     <div className="min-h-screen bg-background overflow-hidden relative flex">
