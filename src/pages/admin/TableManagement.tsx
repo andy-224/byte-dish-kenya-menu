@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -242,7 +243,9 @@ const TableManagement = () => {
                 </Table>
               ) : (
                 <div className="p-8 text-center">
-                  <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                  <div className="h-12 w-12 text-gray-500 mx-auto mb-3">
+                    <QRCodeSVG value="example" size={48} />
+                  </div>
                   <p className="text-gray-400">No tables configured</p>
                   <p className="text-sm text-gray-500">Generate tables to get started</p>
                 </div>
@@ -285,7 +288,9 @@ const TableManagement = () => {
               </div>
             ) : (
               <div className="neo-blur rounded-xl p-8 text-center">
-                <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                <div className="h-12 w-12 text-gray-500 mx-auto mb-3">
+                  <QRCodeSVG value="example" size={48} />
+                </div>
                 <p className="text-gray-400">No QR codes available</p>
                 <p className="text-sm text-gray-500 mb-4">Generate tables first to create QR codes</p>
                 <Button onClick={() => navigate("/admin/tables")}>
@@ -368,7 +373,9 @@ const TableManagement = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                  <div className="h-12 w-12 text-gray-500 mx-auto mb-3">
+                    <QRCodeSVG value="example" size={48} />
+                  </div>
                   <p className="text-gray-400">No tables available for print sheets</p>
                   <p className="text-sm text-gray-500 mb-4">Generate tables first</p>
                 </div>
