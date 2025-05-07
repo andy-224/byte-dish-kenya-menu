@@ -2,48 +2,68 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart, CheckCircle } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import {
+  MinusCircle,
+  PlusCircle,
+  Trash2,
+  ArrowLeft,
+  CreditCard,
+  Banknote,
+  Phone
+} from "lucide-react";
+import { useCart, PaymentMethod } from "@/contexts/CartContext";
 import { useToast } from "@/components/ui/use-toast";
 
 const CartPage = () => {
+  const { 
+    items, 
+    removeItem, 
+    updateQuantity, 
+    updateInstructions, 
+    clearCart, 
+    totalPrice, 
+    tableId,
+    addOrder 
+  } = useCart();
+  const [specialInstructions, setSpecialInstructions] = useState("");
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("Cash");
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, totalPrice, tableId, clearCart } = useCart();
   const { toast } = useToast();
-  const [orderNote, setOrderNote] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'mpesa' | 'card'>('cash');
 
   const handlePlaceOrder = () => {
+    if (items.length === 0) {
+      toast({
+        title: "Empty cart",
+        description: "Your cart is empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!tableId) {
       toast({
-        title: "Table not identified",
+        title: "Table not selected",
         description: "Please scan a table QR code first",
         variant: "destructive",
       });
+      navigate("/scan");
       return;
     }
+
+    const order = addOrder({
+      tableId,
+      items,
+      totalPrice,
+      paymentMethod: selectedPayment,
+      specialInstructions
+    });
+
+    // Clear cart after order is placed
+    clearCart();
     
-    if (items.length === 0) {
-      toast({
-        title: "Cart is empty",
-        description: "Add items to your cart before placing an order",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    // Simulate order submission
-    setTimeout(() => {
-      const orderId = "order-" + Date.now().toString().slice(-6);
-      clearCart();
-      setIsSubmitting(false);
-      navigate(`/order-status/${orderId}`);
-    }, 1500);
+    // Navigate to order status page
+    navigate(`/order-status/${order.id}`);
   };
 
   return (
@@ -60,169 +80,180 @@ const CartPage = () => {
       <div className="fixed top-[45%] left-[15%] w-2 h-2 rounded-full bg-bytedish-neon-blue shadow-[0_0_15px_5px_rgba(107,170,255,0.3)] animate-float-fast"></div>
       
       <div className="bytedish-container animate-fade-in">
-        <Button 
-          variant="ghost" 
-          className="p-0 mb-6 hover:bg-white/10" 
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
-          <span className="text-gradient">Back to Menu</span>
-        </Button>
+        <div className="flex justify-between items-center mb-6">
+          <Button 
+            variant="ghost" 
+            className="p-0 hover:bg-white/10" 
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            <span className="text-gradient">Back</span>
+          </Button>
+          
+          {tableId && (
+            <div className="text-right">
+              <h2 className="font-semibold text-gradient">{tableId.replace('-', ' ')}</h2>
+              <p className="text-xs text-gray-400">ByteDish Restaurant</p>
+            </div>
+          )}
+        </div>
         
         <h1 className="text-3xl font-bold mb-6 text-gradient">Your Cart</h1>
         
         {items.length > 0 ? (
-          <>
-            <div className="space-y-4 mb-6">
-              {items.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  className="neo-blur rounded-xl p-4 animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="flex-1">
-                    <div className="flex justify-between mb-2">
+          <div className="space-y-5 mb-6">
+            {items.map((item) => (
+              <div 
+                key={item.id} 
+                className="neo-blur rounded-xl overflow-hidden border border-white/10 animate-slide-in"
+              >
+                <div className="flex">
+                  <div 
+                    className="w-24 h-24 bg-cover bg-center" 
+                    style={{ backgroundImage: `url(${item.image})` }}
+                  ></div>
+                  
+                  <div className="p-3 flex-1">
+                    <div className="flex justify-between">
                       <h3 className="font-medium text-gradient">{item.name}</h3>
-                      <p className="font-semibold text-white">KES {(item.price * item.quantity).toLocaleString()}</p>
+                      <p className="font-semibold">KES {(item.price * item.quantity).toLocaleString()}</p>
                     </div>
                     
-                    <div className="text-sm text-gray-400 mb-3">KES {item.price.toLocaleString()} each</div>
+                    <p className="text-xs text-gray-400 mb-2">{item.description}</p>
                     
-                    <div className="flex items-center">
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-7 w-7 rounded-full glass-morphism border border-white/10"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-7 w-7 rounded-full glass-morphism border border-white/10"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
+                    {item.specialInstructions && (
+                      <p className="text-xs italic text-bytedish-neon-blue mt-1 mb-2">
+                        "{item.specialInstructions}"
+                      </p>
+                    )}
+                    
+                    <div className="flex justify-between items-center mt-1">
+                      <div className="flex items-center">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 p-0" 
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        >
+                          <MinusCircle className="h-5 w-5 text-gray-400" />
+                        </Button>
+                        
+                        <span className="mx-2 min-w-[20px] text-center">{item.quantity}</span>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 p-0" 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          <PlusCircle className="h-5 w-5 text-white" />
+                        </Button>
+                      </div>
                       
                       <Button 
                         variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7 ml-auto text-red-500 hover:text-red-700 hover:bg-white/10"
+                        size="sm"
                         onClick={() => removeItem(item.id)}
+                        className="hover:bg-red-500/20 hover:text-red-300"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Remove
                       </Button>
                     </div>
-                    
-                    {item.specialInstructions && (
-                      <div className="mt-2 text-sm text-gray-400 bg-white/5 p-2 rounded-lg border border-white/10">
-                        <span className="font-medium">Note:</span> {item.specialInstructions}
-                      </div>
-                    )}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="neo-blur rounded-xl p-6 mb-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-black/40 to-black/10 backdrop-blur-xl flex items-center justify-center border border-primary/30 shadow-[0_0_25px_rgba(155,135,245,0.4)]">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
             </div>
-            
-            <div className="mb-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <label className="block text-sm font-medium mb-1 text-white">Special instructions</label>
+            <h2 className="text-xl font-semibold text-gradient mb-2">Your cart is empty</h2>
+            <p className="text-gray-400 mb-4">Looks like you haven't added any items yet</p>
+            <Button onClick={() => navigate(-1)} className="bg-primary hover:bg-primary/90">
+              Browse Menu
+            </Button>
+          </div>
+        )}
+        
+        {items.length > 0 && (
+          <>
+            <div className="neo-blur rounded-xl p-4 mb-6 border border-white/10">
+              <h3 className="font-medium mb-3">Special Instructions</h3>
               <Textarea 
-                placeholder="Any allergies or special requests?"
-                value={orderNote}
-                onChange={(e) => setOrderNote(e.target.value)}
-                className="glass-morphism bg-transparent border-white/10 focus:border-primary/50 text-white"
+                placeholder="Any special requests or notes for the kitchen?"
+                className="glass-morphism bg-transparent border-white/10 focus:border-primary/50 text-white resize-none mb-0 neo-blur"
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
               />
             </div>
-
-            <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              <label className="block text-sm font-medium mb-3 text-white">Payment Method</label>
+            
+            <div className="neo-blur rounded-xl p-4 mb-6 border border-white/10">
+              <h3 className="font-medium mb-3">Payment Method</h3>
               <div className="grid grid-cols-3 gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setPaymentMethod('cash')}
-                  className={`rounded-xl h-16 flex flex-col items-center justify-center ${
-                    paymentMethod === 'cash'
-                      ? 'border-primary bg-primary/20 shadow-[0_0_15px_rgba(155,135,245,0.5)]'
-                      : 'border-white/10 glass-morphism'
+                <button
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${
+                    selectedPayment === "Cash" 
+                      ? "border-bytedish-neon-green bg-bytedish-neon-green/10 text-bytedish-neon-green" 
+                      : "border-white/10 bg-black/20 text-gray-400 hover:bg-black/30"
                   }`}
+                  onClick={() => setSelectedPayment("Cash")}
                 >
-                  <span className="text-xs uppercase mb-1">Cash</span>
-                  {paymentMethod === 'cash' && <CheckCircle className="h-4 w-4 text-primary" />}
-                </Button>
+                  <Banknote className={`h-6 w-6 mb-2 ${selectedPayment === "Cash" ? "text-bytedish-neon-green" : "text-gray-400"}`} />
+                  <span className="text-xs font-medium">Cash</span>
+                </button>
                 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setPaymentMethod('mpesa')}
-                  className={`rounded-xl h-16 flex flex-col items-center justify-center ${
-                    paymentMethod === 'mpesa'
-                      ? 'border-primary bg-primary/20 shadow-[0_0_15px_rgba(155,135,245,0.5)]'
-                      : 'border-white/10 glass-morphism'
+                <button
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${
+                    selectedPayment === "M-Pesa" 
+                      ? "border-bytedish-neon-blue bg-bytedish-neon-blue/10 text-bytedish-neon-blue" 
+                      : "border-white/10 bg-black/20 text-gray-400 hover:bg-black/30"
                   }`}
+                  onClick={() => setSelectedPayment("M-Pesa")}
                 >
-                  <span className="text-xs uppercase mb-1">M-Pesa</span>
-                  {paymentMethod === 'mpesa' && <CheckCircle className="h-4 w-4 text-primary" />}
-                </Button>
+                  <Phone className={`h-6 w-6 mb-2 ${selectedPayment === "M-Pesa" ? "text-bytedish-neon-blue" : "text-gray-400"}`} />
+                  <span className="text-xs font-medium">M-Pesa</span>
+                </button>
                 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`rounded-xl h-16 flex flex-col items-center justify-center ${
-                    paymentMethod === 'card'
-                      ? 'border-primary bg-primary/20 shadow-[0_0_15px_rgba(155,135,245,0.5)]'
-                      : 'border-white/10 glass-morphism'
+                <button
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${
+                    selectedPayment === "Card" 
+                      ? "border-bytedish-neon-pink bg-bytedish-neon-pink/10 text-bytedish-neon-pink" 
+                      : "border-white/10 bg-black/20 text-gray-400 hover:bg-black/30"
                   }`}
+                  onClick={() => setSelectedPayment("Card")}
                 >
-                  <span className="text-xs uppercase mb-1">Card</span>
-                  {paymentMethod === 'card' && <CheckCircle className="h-4 w-4 text-primary" />}
-                </Button>
+                  <CreditCard className={`h-6 w-6 mb-2 ${selectedPayment === "Card" ? "text-bytedish-neon-pink" : "text-gray-400"}`} />
+                  <span className="text-xs font-medium">Card</span>
+                </button>
               </div>
             </div>
             
-            <div className="neo-blur rounded-xl p-5 mb-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+            <div className="neo-blur rounded-xl p-4 mb-8 border border-white/10">
               <div className="flex justify-between mb-3">
                 <span className="text-gray-400">Subtotal</span>
-                <span className="text-white">KES {totalPrice.toLocaleString()}</span>
+                <span>KES {totalPrice.toLocaleString()}</span>
               </div>
               
               <div className="border-t border-white/10 my-2"></div>
               
-              <div className="flex justify-between font-semibold text-lg">
-                <span className="text-white">Total</span>
+              <div className="flex justify-between font-bold">
+                <span>Total</span>
                 <span className="text-gradient-primary">KES {totalPrice.toLocaleString()}</span>
               </div>
             </div>
             
             <Button 
-              className="w-full py-6 bg-gradient-to-br from-primary via-primary/90 to-primary/80 hover:bg-primary/90 text-white font-medium rounded-xl shadow-[0_0_20px_rgba(155,135,245,0.4)] transition-all hover:shadow-[0_0_30px_rgba(155,135,245,0.7)] border border-white/10 animate-fade-in"
-              style={{ animationDelay: "0.6s" }}
+              className="w-full py-6 bg-gradient-to-r from-primary to-primary/80 hover:bg-primary/90 text-white font-medium rounded-xl shadow-[0_0_20px_rgba(155,135,245,0.4)] transition-all hover:shadow-[0_0_30px_rgba(155,135,245,0.7)] text-lg"
               onClick={handlePlaceOrder}
-              disabled={isSubmitting}
             >
-              {isSubmitting ? "Processing..." : "Place Order"}
+              Place Order - KES {totalPrice.toLocaleString()}
             </Button>
           </>
-        ) : (
-          <div className="text-center py-12 neo-blur rounded-xl">
-            <div className="w-20 h-20 mx-auto rounded-full neo-blur flex items-center justify-center mb-6 border border-white/10">
-              <ShoppingCart className="h-10 w-10 text-gray-400" />
-            </div>
-            <h2 className="text-xl font-medium mb-3 text-gradient">Your cart is empty</h2>
-            <p className="text-gray-400 mb-6">Add items from the menu to get started</p>
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-white shadow-[0_0_15px_rgba(155,135,245,0.5)]"
-              onClick={() => navigate(`/menu/${tableId || 'demo'}`)}
-            >
-              Browse Menu
-            </Button>
-          </div>
         )}
       </div>
     </div>
