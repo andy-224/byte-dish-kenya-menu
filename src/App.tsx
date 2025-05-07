@@ -39,7 +39,7 @@ const App = () => (
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/menu" element={<ProtectedRoute><MenuManagement /></ProtectedRoute>} />
-            <Route path="/admin/tables" element={<ProtectedRoute><TableManagement /></ProtectedRoute>} />
+            <Route path="/admin/tables" element={<ProtectedRoute requireAdmin={true}><TableManagement /></ProtectedRoute>} />
             <Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
             
             {/* Catch-all route */}

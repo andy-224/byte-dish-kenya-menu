@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -51,19 +50,28 @@ const CartPage = () => {
       return;
     }
 
-    const order = addOrder({
+    const newOrder = addOrder({
       tableId,
       items,
       totalPrice,
       paymentMethod: selectedPayment,
       specialInstructions
     });
+    
+    if (!newOrder || !newOrder.id) {
+      toast({
+        title: "Order error",
+        description: "There was an error creating your order",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Clear cart after order is placed
     clearCart();
     
     // Navigate to order status page
-    navigate(`/order-status/${order.id}`);
+    navigate(`/order-status/${newOrder.id}`);
   };
 
   return (

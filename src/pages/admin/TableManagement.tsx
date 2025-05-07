@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -15,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus, Trash2, QrCode, Printer, Save, Edit, Check, X } from "lucide-react";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { useCart } from "@/contexts/CartContext";
 
 interface TableItem {
@@ -243,7 +242,7 @@ const TableManagement = () => {
                 </Table>
               ) : (
                 <div className="p-8 text-center">
-                  <QrCode className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                  <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
                   <p className="text-gray-400">No tables configured</p>
                   <p className="text-sm text-gray-500">Generate tables to get started</p>
                 </div>
@@ -260,13 +259,7 @@ const TableManagement = () => {
                     className="neo-blur rounded-xl p-6 flex flex-col items-center border border-white/10"
                   >
                     <div className="p-4 bg-white rounded-xl mb-4">
-                      <QRCode 
-                        value={getQRCodeUrl(table.id)} 
-                        size={150} 
-                        level="H" 
-                        includeMargin={true}
-                        renderAs="canvas"
-                      />
+                      <QRCodeSVG value={getQRCodeUrl(table.id)} size={150} level="H" includeMargin={true} />
                     </div>
                     <h3 className="font-semibold text-lg text-gradient mb-1">{table.name}</h3>
                     <p className="text-xs text-gray-400 mb-4">{getQRCodeUrl(table.id)}</p>
@@ -292,7 +285,7 @@ const TableManagement = () => {
               </div>
             ) : (
               <div className="neo-blur rounded-xl p-8 text-center">
-                <QrCode className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
                 <p className="text-gray-400">No QR codes available</p>
                 <p className="text-sm text-gray-500 mb-4">Generate tables first to create QR codes</p>
                 <Button onClick={() => navigate("/admin/tables")}>
@@ -355,13 +348,7 @@ const TableManagement = () => {
                                 Cut here
                               </div>
                               <div className="mb-2 mt-4">
-                                <QRCode 
-                                  value={getQRCodeUrl(tables[tableIndex].id)} 
-                                  size={70} 
-                                  level="H" 
-                                  includeMargin={false}
-                                  renderAs="canvas"
-                                />
+                                <QRCodeSVG value={getQRCodeUrl(tables[tableIndex].id)} size={70} level="H" includeMargin={false} />
                               </div>
                               <div className="text-xs text-center font-bold text-gray-800">
                                 {tables[tableIndex].name}
@@ -381,7 +368,7 @@ const TableManagement = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <QrCode className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+                  <QrCodeSVG className="h-12 w-12 text-gray-500 mx-auto mb-3" />
                   <p className="text-gray-400">No tables available for print sheets</p>
                   <p className="text-sm text-gray-500 mb-4">Generate tables first</p>
                 </div>
