@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -7,39 +8,36 @@ import { toast } from "sonner";
 type PaymentMethod = "cash" | "mpesa" | "card";
 
 const CartPage = () => {
-  const { cartItems, clearCart, addOrder } = useCart();
+  const { items, clearCart, addOrder } = useCart();
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const navigate = useNavigate();
 
-  const totalAmount = cartItems.reduce(
+  const totalAmount = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
   const handlePlaceOrder = () => {
-    if (cartItems.length === 0) {
+    if (items.length === 0) {
       toast.error("Your cart is empty");
       return;
     }
 
     const order = {
-      items: [...cartItems],
-      totalAmount,
-      notes,
+      items: [...items],
+      totalPrice: totalAmount,
+      specialInstructions: notes,
       paymentMethod,
-      status: "placed",
-      timestamp: new Date().toISOString(),
       tableId: localStorage.getItem("currentTableId") || "1",
     };
 
-    const orderId = addOrder(order);
-    
-    if (orderId) {
+    try {
+      const newOrder = addOrder(order);
       clearCart();
       toast.success("Order placed successfully!");
-      navigate(`/order-status/${orderId}`);
-    } else {
+      navigate(`/order-status/${newOrder.id}`);
+    } catch (error) {
       toast.error("Failed to place order. Please try again.");
     }
   };
@@ -48,7 +46,7 @@ const CartPage = () => {
     itemId: string,
     action: "increase" | "decrease"
   ) => {
-    const item = cartItems.find((item) => item.id === itemId);
+    const item = items.find((item) => item.id === itemId);
     if (!item) return;
 
     if (action === "increase") {
@@ -60,7 +58,7 @@ const CartPage = () => {
     }
   };
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 flex flex-col items-center">
         <div className="text-center">
@@ -81,7 +79,7 @@ const CartPage = () => {
       <div className="space-y-6">
         {/* Cart items */}
         <div className="space-y-4">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10"
