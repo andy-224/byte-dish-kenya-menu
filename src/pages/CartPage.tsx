@@ -5,12 +5,13 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-type PaymentMethod = "cash" | "mpesa" | "card";
+// Updated to match the PaymentMethod type in CartContext
+type PaymentMethod = "Cash" | "M-Pesa" | "Card";
 
 const CartPage = () => {
   const { items, clearCart, addOrder } = useCart();
   const [notes, setNotes] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Cash");
   const navigate = useNavigate();
 
   const totalAmount = items.reduce(
@@ -34,9 +35,13 @@ const CartPage = () => {
 
     try {
       const newOrder = addOrder(order);
-      clearCart();
-      toast.success("Order placed successfully!");
-      navigate(`/order-status/${newOrder.id}`);
+      if (newOrder && newOrder.id) {
+        clearCart();
+        toast.success("Order placed successfully!");
+        navigate(`/order-status/${newOrder.id}`);
+      } else {
+        toast.error("Failed to place order. Missing order information.");
+      }
     } catch (error) {
       toast.error("Failed to place order. Please try again.");
     }
@@ -135,9 +140,9 @@ const CartPage = () => {
           <h2 className="text-lg font-semibold mb-2">Payment Method</h2>
           <div className="grid grid-cols-3 gap-4">
             <button
-              onClick={() => setPaymentMethod("cash")}
+              onClick={() => setPaymentMethod("Cash")}
               className={`p-3 rounded-md transition ${
-                paymentMethod === "cash"
+                paymentMethod === "Cash"
                   ? "bg-primary text-primary-foreground"
                   : "bg-black/20 hover:bg-black/30"
               }`}
@@ -145,9 +150,9 @@ const CartPage = () => {
               Cash
             </button>
             <button
-              onClick={() => setPaymentMethod("mpesa")}
+              onClick={() => setPaymentMethod("M-Pesa")}
               className={`p-3 rounded-md transition ${
-                paymentMethod === "mpesa"
+                paymentMethod === "M-Pesa"
                   ? "bg-primary text-primary-foreground"
                   : "bg-black/20 hover:bg-black/30"
               }`}
@@ -155,9 +160,9 @@ const CartPage = () => {
               M-Pesa
             </button>
             <button
-              onClick={() => setPaymentMethod("card")}
+              onClick={() => setPaymentMethod("Card")}
               className={`p-3 rounded-md transition ${
-                paymentMethod === "card"
+                paymentMethod === "Card"
                   ? "bg-primary text-primary-foreground"
                   : "bg-black/20 hover:bg-black/30"
               }`}

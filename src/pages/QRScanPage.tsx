@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, QrCode } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 const QRScanPage = () => {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ const QRScanPage = () => {
     // Simulate successful scan after 2 seconds
     setTimeout(() => {
       const mockTableId = "table-" + Math.floor(Math.random() * 20 + 1);
+      localStorage.setItem("currentTableId", mockTableId); // Store table ID for use in cart
       setTableId(mockTableId);
+      toast.success(`Table ${mockTableId} scanned successfully`);
       navigate(`/menu/${mockTableId}`);
     }, 2000);
   };

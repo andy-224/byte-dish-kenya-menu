@@ -4,10 +4,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, Search, ShoppingCart, Plus } from "lucide-react";
+import { ArrowLeft, Search, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import MenuCard from "@/components/menu/MenuCard";
 import { mockMenuItems } from "@/data/mockData";
+import { toast } from "sonner";
 
 const categories = ["All", "Starters", "Main Course", "Desserts", "Drinks"];
 
@@ -21,7 +22,10 @@ const MenuPage = () => {
 
   useEffect(() => {
     if (tableId) {
+      // Store tableId in localStorage to use in cart
+      localStorage.setItem("currentTableId", tableId);
       setTableId(tableId);
+      toast.success(`Menu loaded for ${tableId.replace('-', ' ')}`);
     }
   }, [tableId, setTableId]);
 
