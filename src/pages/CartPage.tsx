@@ -34,8 +34,11 @@ const CartPage = () => {
     };
 
     try {
+      // Call addOrder and store the result
       const newOrder = addOrder(order);
-      if (newOrder && newOrder.id) {
+      
+      // Check if newOrder exists and has an id property
+      if (newOrder && typeof newOrder === 'object' && 'id' in newOrder) {
         clearCart();
         toast.success("Order placed successfully!");
         navigate(`/order-status/${newOrder.id}`);

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -47,7 +48,8 @@ type CartContextType = {
   tableId: string | null;
   setTableId: (tableId: string) => void;
   orders: Order[];
-  addOrder: (order: Omit<Order, "id" | "timestamp" | "status" | "paymentCollected">) => void;
+  // Updated addOrder return type to explicitly return Order
+  addOrder: (order: Omit<Order, "id" | "timestamp" | "status" | "paymentCollected">) => Order;
   updateOrderStatus: (orderId: string, status: OrderStatus, estimatedTime?: number) => void;
   updatePaymentStatus: (orderId: string, collected: boolean) => void;
   userRole: UserRole | null;
