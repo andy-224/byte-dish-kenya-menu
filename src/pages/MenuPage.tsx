@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import MenuCard from "@/components/menu/MenuCard";
-import { mockMenuItems } from "@/data/mockData"; // Fixed import name
+import { mockMenuItems } from "@/data/mockData"; 
 import { Button } from "@/components/ui/button";
 import {
   Tabs,
@@ -12,6 +12,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import RepeatOrderOption from "@/components/RepeatOrderOption";
+import CallAssistanceButton from "@/components/menu/CallAssistanceButton";
 
 const MenuPage = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -81,6 +82,9 @@ const MenuPage = () => {
           View Cart
         </Button>
       </div>
+      
+      {/* Add the call assistance button */}
+      <CallAssistanceButton />
     </div>
   );
 };

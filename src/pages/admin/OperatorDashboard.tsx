@@ -6,6 +6,7 @@ import RealTimeQueueView from "@/components/admin/RealTimeQueueView";
 import ShiftTimer from "@/components/admin/ShiftTimer";
 import ServiceIssueLog from "@/components/admin/ServiceIssueLog";
 import OrderExport from "@/components/admin/OrderExport";
+import TableAssistanceAlerts from "@/components/admin/TableAssistanceAlerts";
 import {
   Tabs,
   TabsContent,
@@ -18,6 +19,9 @@ const OperatorDashboard = () => {
     <AdminLayout title="Operator Dashboard" subtitle="Manage orders and operations">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
+          <div className="mb-6">
+            <TableAssistanceAlerts />
+          </div>
           <Tabs defaultValue="queue" className="space-y-6">
             <TabsList className="neo-blur bg-black/20">
               <TabsTrigger value="queue">Queue</TabsTrigger>
