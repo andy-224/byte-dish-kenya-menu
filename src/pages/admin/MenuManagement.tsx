@@ -16,6 +16,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Plus,
   Save, 
@@ -27,9 +34,14 @@ import {
   Check,
   Filter,
   Menu as MenuIcon,
+  Copy,
+  Upload,
+  Image,
+  Loader2,
 } from "lucide-react";
 import { mockMenuItems } from "@/data/mockData";
 import { MenuItem } from "@/contexts/CartContext";
+import ImageSelector from "@/components/admin/ImageSelector";
 
 interface Category {
   id: string;
@@ -113,6 +125,13 @@ const MenuManagement = () => {
     setFormData(prev => ({
       ...prev,
       available: checked
+    }));
+  };
+  
+  const handleImageChange = (imageUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      image: imageUrl
     }));
   };
   
@@ -501,14 +520,10 @@ const MenuManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
-                name="image"
-                placeholder="https://example.com/image.jpg"
-                className="neo-blur"
-                value={formData.image}
-                onChange={handleInputChange}
+              <Label htmlFor="image">Item Image</Label>
+              <ImageSelector 
+                currentImage={formData.image}
+                onImageSelected={handleImageChange}
               />
             </div>
             

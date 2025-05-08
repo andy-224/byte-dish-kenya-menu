@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import AdminLayout from "@/components/admin/AdminLayout";
 import RealTimeQueueView from "@/components/admin/RealTimeQueueView";
@@ -13,8 +13,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const OperatorDashboard = () => {
+  const navigate = useNavigate();
+  
   return (
     <AdminLayout title="Operator Dashboard" subtitle="Manage orders and operations">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -36,6 +41,22 @@ const OperatorDashboard = () => {
               <ServiceIssueLog />
             </TabsContent>
           </Tabs>
+          
+          <div className="mt-6 neo-blur rounded-xl p-4 border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-white">Menu Management</h2>
+              <Button 
+                variant="ghost" 
+                className="text-primary hover:text-primary/80 hover:bg-white/5"
+                onClick={() => navigate('/admin/menu')}
+              >
+                Manage Menu <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-sm text-gray-400 mb-2">
+              Update menu items, add new dishes, or manage item availability.
+            </p>
+          </div>
         </div>
         
         <div className="space-y-6">

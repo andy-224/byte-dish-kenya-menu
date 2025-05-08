@@ -40,6 +40,11 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
     setSpecialInstructions("");
   };
 
+  // Function to handle image loading errors
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "/placeholder.svg"; // Fall back to placeholder
+  };
+
   return (
     <>
       <div 
@@ -48,10 +53,14 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
         style={style}
       >
         <div className="relative">
-          <div 
-            className="food-image" 
-            style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          />
+          <div className="food-image aspect-video">
+            <img 
+              src={item.image} 
+              alt={item.name}
+              className="w-full h-full object-cover" 
+              onError={handleImageError}
+            />
+          </div>
           <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white border border-white/10">
             KES {item.price.toLocaleString()}
           </div>
@@ -84,10 +93,14 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
           </DialogHeader>
 
           <div className="my-4">
-            <div 
-              className="w-full h-48 rounded-md mb-4 border border-white/10" 
-              style={{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-            />
+            <div className="w-full h-48 rounded-md mb-4 border border-white/10 overflow-hidden">
+              <img 
+                src={item.image} 
+                alt={item.name}
+                className="w-full h-full object-cover" 
+                onError={handleImageError}
+              />
+            </div>
             
             <div className="flex justify-between items-center mb-4 bg-black/30 p-3 rounded-lg">
               <span className="font-medium text-gray-300">Price:</span>
