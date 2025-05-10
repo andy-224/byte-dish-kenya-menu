@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -23,6 +22,15 @@ export type CurrencyType = "USD" | "KSH"; // Added currency type
 
 export type OrderStatus = "placed" | "received" | "preparing" | "ready" | "served";
 
+export type Feedback = {
+  id: string;
+  orderId: string;
+  tableId: string;
+  rating: number; // 1-5 rating
+  comment?: string;
+  timestamp: string;
+};
+
 export type Order = {
   id: string;
   tableId: string;
@@ -31,10 +39,11 @@ export type Order = {
   paymentMethod: PaymentMethod;
   paymentCollected: boolean;
   totalPrice: number;
-  currency: CurrencyType; // Added currency field
+  currency: CurrencyType;
   specialInstructions?: string;
   timestamp: string;
   estimatedTime?: number;
+  hasFeedback?: boolean; // Flag to track if feedback was given
 };
 
 export type TableStatus = "available" | "occupied" | "reserved" | "needs-cleaning";
@@ -86,6 +95,13 @@ type CartContextType = {
   }[];
   addServiceIssue: (type: string, description: string) => void;
   resolveServiceIssue: (issueId: string) => void;
+  
+  // Feedback functions
+  feedback: Feedback[];
+  addFeedback: (orderId: string, tableId: string, rating: number, comment?: string) => void;
+  getFeedbackByOrderId: (orderId: string) => Feedback | undefined;
+  getFeedbackByTableId: (tableId: string) => Feedback[];
+  getFeedbackByDateRange: (startDate: Date, endDate: Date) => Feedback[];
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -113,7 +129,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     timestamp: string;
     resolved: boolean;
   }[]>([]);
-  
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
   const { toast } = useToast();
 
   // Load cart from localStorage on mount
@@ -126,6 +142,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedAuthStatus = localStorage.getItem("bytedish-auth-status");
     const savedTables = localStorage.getItem("bytedish-table-statuses");
     const savedIssues = localStorage.getItem("bytedish-service-issues");
+    const savedFeedback = localStorage.getItem("bytedish-feedback");
     const savedCurrency = localStorage.getItem("bytedish-currency");
     
     if (savedCart) {
@@ -169,6 +186,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setServiceIssues(JSON.parse(savedIssues));
       } catch (e) {
         console.error("Failed to parse saved issues:", e);
+      }
+    }
+    
+    if (savedFeedback) {
+      try {
+        setFeedback(JSON.parse(savedFeedback));
+      } catch (e) {
+        console.error("Failed to parse saved feedback:", e);
       }
     }
     
@@ -418,6 +443,50 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const addFeedback = (orderId: string, tableId: string, rating: number, comment?: string) => {
+    const newFeedback: Feedback = {
+      id: `feedback-${Date.now()}`,
+      orderId,
+      tableId,
+      rating,
+      comment,
+      timestamp: new Date().toISOString()
+    };
+
+    setFeedback(prevFeedback => [...prevFeedback, newFeedback]);
+    
+    // Mark the order as having feedback
+    setOrders(prevOrders => 
+      prevOrders.map(order => 
+        order.id === orderId 
+          ? { ...order, hasFeedback: true } 
+          : order
+      )
+    );
+    
+    toast({
+      title: "Thank you for your feedback!",
+      description: "Your feedback helps us improve our service.",
+    });
+    
+    return newFeedback;
+  };
+
+  const getFeedbackByOrderId = (orderId: string) => {
+    return feedback.find(fb => fb.orderId === orderId);
+  };
+
+  const getFeedbackByTableId = (tableId: string) => {
+    return feedback.filter(fb => fb.tableId === tableId);
+  };
+
+  const getFeedbackByDateRange = (startDate: Date, endDate: Date) => {
+    return feedback.filter(fb => {
+      const fbDate = new Date(fb.timestamp);
+      return fbDate >= startDate && fbDate <= endDate;
+    });
+  };
+
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   
   const totalPrice = items.reduce(
@@ -455,7 +524,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateTableNote,
         serviceIssues,
         addServiceIssue,
-        resolveServiceIssue
+        resolveServiceIssue,
+        feedback,
+        addFeedback,
+        getFeedbackByOrderId,
+        getFeedbackByTableId,
+        getFeedbackByDateRange
       }}
     >
       {children}

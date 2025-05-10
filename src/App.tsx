@@ -1,62 +1,101 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CartProvider } from "./contexts/CartContext";
+import { Toaster } from "./components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import MenuPage from "./pages/MenuPage";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+
+// Page imports
 import MenuPageWrapper from "./components/MenuPageWrapper";
+import MenuPage from "./pages/MenuPage";
 import CartPage from "./pages/CartPage";
 import OrderStatusPage from "./pages/OrderStatusPage";
-import NotFound from "./pages/NotFound";
+import HomePage from "./pages/HomePage";
 import QRScanPage from "./pages/QRScanPage";
+import NotFound from "./pages/NotFound";
+
+// Admin page imports
+import ProtectedRoute from "./components/admin/ProtectedRoute";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import MenuManagement from "./pages/admin/MenuManagement";
-import TableManagement from "./pages/admin/TableManagement";
-import OrderManagement from "./pages/admin/OrderManagement";
-import SettingsPage from "./pages/admin/SettingsPage";
 import OperatorDashboard from "./pages/admin/OperatorDashboard";
+import MenuManagement from "./pages/admin/MenuManagement";
+import OrderManagement from "./pages/admin/OrderManagement";
+import TableManagement from "./pages/admin/TableManagement";
+import SettingsPage from "./pages/admin/SettingsPage";
 import TableStatusDashboard from "./pages/admin/TableStatusDashboard";
-import ProtectedRoute from "./components/admin/ProtectedRoute";
-import { CartProvider } from "./contexts/CartContext";
+import FeedbackPage from "./pages/admin/FeedbackPage";
+
+import "./App.css";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <TooltipProvider>
+        <CartProvider>
+          <Router>
             <Routes>
-              {/* Customer-facing routes */}
               <Route path="/" element={<HomePage />} />
-              <Route path="/scan" element={<QRScanPage />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/menu/:tableId" element={<MenuPageWrapper />} />
+              <Route path="/qr-scan" element={<QRScanPage />} />
+              
+              <Route element={<MenuPageWrapper />}>
+                <Route path="/menu" element={<MenuPage />} />
+              </Route>
+              
               <Route path="/cart" element={<CartPage />} />
-              <Route path="/order-status/:orderId" element={<OrderStatusPage />} />
+              <Route path="/order/:orderId" element={<OrderStatusPage />} />
               
-              {/* Admin/Operator routes */}
+              {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/menu" element={<ProtectedRoute><MenuManagement /></ProtectedRoute>} />
-              <Route path="/admin/tables" element={<ProtectedRoute requireAdmin={true}><TableManagement /></ProtectedRoute>} />
-              <Route path="/admin/table-status" element={<ProtectedRoute><TableStatusDashboard /></ProtectedRoute>} />
-              <Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute requireAdmin={true}><SettingsPage /></ProtectedRoute>} />
-              <Route path="/admin/operator" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>} />
+              <Route path="/admin" element={
+                <ProtectedRoute allowedRoles={["admin", "operator"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/menu" element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <MenuManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders" element={
+                <ProtectedRoute allowedRoles={["admin", "operator"]}>
+                  <OrderManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/tables" element={
+                <ProtectedRoute allowedRoles={["admin", "operator"]}>
+                  <TableManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/table-status" element={
+                <ProtectedRoute allowedRoles={["admin", "operator"]}>
+                  <TableStatusDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/feedback" element={
+                <ProtectedRoute allowedRoles={["admin", "operator"]}>
+                  <FeedbackPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/settings" element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/operator" element={
+                <ProtectedRoute allowedRoles={["operator"]}>
+                  <OperatorDashboard />
+                </ProtectedRoute>
+              } />
               
-              {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </CartProvider>
+          </Router>
+          <Toaster />
+        </CartProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

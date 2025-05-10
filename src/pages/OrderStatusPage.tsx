@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import {
   ClipboardCheck,
   Home
 } from "lucide-react";
+import { useCart, OrderStatus, Order } from "@/contexts/CartContext";
+import FeedbackModule from "@/components/feedback/FeedbackModule";
 
 type OrderStatus = "placed" | "received" | "preparing" | "ready" | "served";
 
@@ -26,8 +27,11 @@ interface OrderStatusInfo {
 const OrderStatusPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const { orders, updateOrderStatus } = useCart();
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("placed");
   const [glowingIndex, setGlowingIndex] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
 
   // Define the order stages
   const orderStages: Record<OrderStatus, OrderStatusInfo> = {
@@ -68,6 +72,17 @@ const OrderStatusPage = () => {
     }
   };
 
+  // Find the current order from the context
+  useEffect(() => {
+    if (orderId) {
+      const foundOrder = orders.find(order => order.id === orderId);
+      if (foundOrder) {
+        setCurrentStatus(foundOrder.status);
+        setCurrentOrder(foundOrder);
+      }
+    }
+  }, [orderId, orders]);
+
   // Simulate order status progression
   useEffect(() => {
     const statusSequence: OrderStatus[] = [
@@ -78,12 +93,27 @@ const OrderStatusPage = () => {
       "served"
     ];
     
-    let currentIndex = 0;
+    let currentIndex = statusSequence.indexOf(currentStatus);
+    if (currentIndex === -1) currentIndex = 0;
     
     const interval = setInterval(() => {
       if (currentIndex < statusSequence.length - 1) {
         currentIndex++;
-        setCurrentStatus(statusSequence[currentIndex]);
+        const newStatus = statusSequence[currentIndex];
+        setCurrentStatus(newStatus);
+        
+        // Update the actual order status in the context
+        if (orderId) {
+          updateOrderStatus(orderId, newStatus);
+        }
+        
+        // Show feedback dialog when order is served
+        if (newStatus === "served") {
+          // Show feedback after a short delay to let the user see the served status
+          setTimeout(() => {
+            setShowFeedback(true);
+          }, 2000);
+        }
       } else {
         clearInterval(interval);
       }
@@ -242,6 +272,15 @@ const OrderStatusPage = () => {
           </Button>
         </div>
       </div>
+      
+      {/* Feedback Module */}
+      {currentOrder && (
+        <FeedbackModule 
+          order={currentOrder} 
+          isOpen={showFeedback} 
+          onClose={() => setShowFeedback(false)} 
+        />
+      )}
     </div>
   );
 };
