@@ -14,7 +14,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Table } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const OperatorDashboard = () => {
@@ -42,20 +42,38 @@ const OperatorDashboard = () => {
             </TabsContent>
           </Tabs>
           
-          <div className="mt-6 neo-blur rounded-xl p-4 border border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-white">Menu Management</h2>
-              <Button 
-                variant="ghost" 
-                className="text-primary hover:text-primary/80 hover:bg-white/5"
-                onClick={() => navigate('/admin/menu')}
-              >
-                Manage Menu <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="neo-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium text-white">Menu Management</h2>
+                <Button 
+                  variant="ghost" 
+                  className="text-primary hover:text-primary/80 hover:bg-white/5"
+                  onClick={() => navigate('/admin/menu')}
+                >
+                  Manage Menu <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">
+                Update menu items, add new dishes, or manage item availability.
+              </p>
             </div>
-            <p className="text-sm text-gray-400 mb-2">
-              Update menu items, add new dishes, or manage item availability.
-            </p>
+            
+            <div className="neo-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium text-white">Table Status</h2>
+                <Button 
+                  variant="ghost" 
+                  className="text-primary hover:text-primary/80 hover:bg-white/5"
+                  onClick={() => navigate('/admin/table-status')}
+                >
+                  View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-400 mb-2">
+                Monitor and update table statuses in real-time.
+              </p>
+            </div>
           </div>
         </div>
         

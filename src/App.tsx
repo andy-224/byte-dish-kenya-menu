@@ -18,6 +18,7 @@ import TableManagement from "./pages/admin/TableManagement";
 import OrderManagement from "./pages/admin/OrderManagement";
 import SettingsPage from "./pages/admin/SettingsPage";
 import OperatorDashboard from "./pages/admin/OperatorDashboard";
+import TableStatusDashboard from "./pages/admin/TableStatusDashboard";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import { CartProvider } from "./contexts/CartContext";
 
@@ -45,6 +46,7 @@ function App() {
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/menu" element={<ProtectedRoute><MenuManagement /></ProtectedRoute>} />
               <Route path="/admin/tables" element={<ProtectedRoute requireAdmin={true}><TableManagement /></ProtectedRoute>} />
+              <Route path="/admin/table-status" element={<ProtectedRoute><TableStatusDashboard /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute><OrderManagement /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute requireAdmin={true}><SettingsPage /></ProtectedRoute>} />
               <Route path="/admin/operator" element={<ProtectedRoute><OperatorDashboard /></ProtectedRoute>} />
