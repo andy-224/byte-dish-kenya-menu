@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, CurrencyType } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -9,7 +9,7 @@ import { toast } from "sonner";
 type PaymentMethod = "Cash" | "M-Pesa" | "Card";
 
 const CartPage = () => {
-  const { items, clearCart, addOrder } = useCart();
+  const { items, clearCart, addOrder, currentCurrency } = useCart();
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("Cash");
   const navigate = useNavigate();
@@ -18,6 +18,15 @@ const CartPage = () => {
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  // Format currency based on the selected currency
+  const formatCurrency = (price: number) => {
+    if (currentCurrency === "KSH") {
+      return `KSH ${price.toLocaleString()}`;
+    } else {
+      return `$${price.toLocaleString()}`;
+    }
+  };
 
   const handlePlaceOrder = () => {
     if (items.length === 0) {
@@ -30,6 +39,7 @@ const CartPage = () => {
       totalPrice: totalAmount,
       specialInstructions: notes,
       paymentMethod,
+      currency: currentCurrency, // Include the current currency in the order
       tableId: localStorage.getItem("currentTableId") || "1",
     };
 
@@ -102,7 +112,7 @@ const CartPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-sm text-gray-400">${item.price.toFixed(2)}</p>
+                  <p className="text-sm text-gray-400">{formatCurrency(item.price)}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -180,12 +190,12 @@ const CartPage = () => {
           <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>${totalAmount.toFixed(2)}</span>
+            <span>{formatCurrency(totalAmount)}</span>
           </div>
           <div className="border-t border-white/10 my-2"></div>
           <div className="flex justify-between font-semibold">
             <span>Total</span>
-            <span className="text-primary">${totalAmount.toFixed(2)}</span>
+            <span className="text-primary">{formatCurrency(totalAmount)}</span>
           </div>
         </div>
 

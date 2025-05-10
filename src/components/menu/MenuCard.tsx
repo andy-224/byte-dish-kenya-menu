@@ -20,7 +20,7 @@ interface MenuCardProps {
 }
 
 const MenuCard = ({ item, className, style }: MenuCardProps) => {
-  const { addItem } = useCart();
+  const { addItem, currentCurrency } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState("");
@@ -30,7 +30,8 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
     const cartItem: CartItem = {
       ...item,
       quantity,
-      specialInstructions
+      specialInstructions,
+      currency: currentCurrency // Make sure the cart item uses the current currency
     };
     
     addItem(cartItem);
@@ -43,6 +44,15 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
   // Function to handle image loading errors
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "/placeholder.svg"; // Fall back to placeholder
+  };
+
+  // Format currency based on the current selection
+  const formatCurrency = (price: number) => {
+    if (currentCurrency === "KSH") {
+      return `KSH ${price.toLocaleString()}`;
+    } else {
+      return `$${price.toLocaleString()}`;
+    }
   };
 
   return (
@@ -62,7 +72,7 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
             />
           </div>
           <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium text-white border border-white/10">
-            KES {item.price.toLocaleString()}
+            {formatCurrency(item.price)}
           </div>
         </div>
         <div className="p-4">
@@ -104,7 +114,7 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
             
             <div className="flex justify-between items-center mb-4 bg-black/30 p-3 rounded-lg">
               <span className="font-medium text-gray-300">Price:</span>
-              <span className="font-semibold text-gradient-primary">KES {item.price.toLocaleString()}</span>
+              <span className="font-semibold text-gradient-primary">{formatCurrency(item.price)}</span>
             </div>
 
             <div className="mb-4">
@@ -153,7 +163,7 @@ const MenuCard = ({ item, className, style }: MenuCardProps) => {
               className="bg-gradient-to-r from-primary to-primary/80 hover:bg-primary/90 shadow-[0_0_10px_rgba(155,135,245,0.3)]"
               onClick={handleAddToCart}
             >
-              Add to Cart - KES {(item.price * quantity).toLocaleString()}
+              Add to Cart - {formatCurrency(item.price * quantity)}
             </Button>
           </DialogFooter>
         </DialogContent>

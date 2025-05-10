@@ -10,6 +10,7 @@ export type MenuItem = {
   image: string;
   category: string;
   available?: boolean;
+  currency?: "USD" | "KSH"; // Added currency field with default currencies
 };
 
 export type CartItem = MenuItem & {
@@ -18,6 +19,7 @@ export type CartItem = MenuItem & {
 };
 
 export type PaymentMethod = "Cash" | "M-Pesa" | "Card";
+export type CurrencyType = "USD" | "KSH"; // Added currency type
 
 export type OrderStatus = "placed" | "received" | "preparing" | "ready" | "served";
 
@@ -29,6 +31,7 @@ export type Order = {
   paymentMethod: PaymentMethod;
   paymentCollected: boolean;
   totalPrice: number;
+  currency: CurrencyType; // Added currency field
   specialInstructions?: string;
   timestamp: string;
   estimatedTime?: number;
@@ -61,6 +64,8 @@ type CartContextType = {
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
   checkPinAuth: (pin: string) => boolean;
+  currentCurrency: CurrencyType; // Added current currency
+  setCurrency: (currency: CurrencyType) => void; // Added function to set currency
   
   // Table management
   tables: {
@@ -95,6 +100,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [orders, setOrders] = useState<Order[]>([]);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentCurrency, setCurrency] = useState<CurrencyType>("USD"); // Default currency is USD
   const [tables, setTables] = useState<{
     id: string;
     status: TableStatus;
@@ -120,6 +126,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedAuthStatus = localStorage.getItem("bytedish-auth-status");
     const savedTables = localStorage.getItem("bytedish-table-statuses");
     const savedIssues = localStorage.getItem("bytedish-service-issues");
+    const savedCurrency = localStorage.getItem("bytedish-currency");
     
     if (savedCart) {
       try {
@@ -164,6 +171,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Failed to parse saved issues:", e);
       }
     }
+    
+    if (savedCurrency) {
+      setCurrency(savedCurrency as CurrencyType);
+    }
   }, []);
 
   // Save cart to localStorage when it changes
@@ -206,6 +217,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     localStorage.setItem("bytedish-service-issues", JSON.stringify(serviceIssues));
   }, [serviceIssues]);
+  
+  // Save current currency to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("bytedish-currency", currentCurrency);
+  }, [currentCurrency]);
 
   const addItem = (item: CartItem) => {
     setItems((prevItems) => {
@@ -278,6 +294,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: new Date().toISOString(),
       status: "placed",
       paymentCollected: false,
+      currency: orderData.currency || currentCurrency, // Use provided currency or default
     };
 
     setOrders((prevOrders) => [...prevOrders, newOrder]);
@@ -431,6 +448,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated,
         setIsAuthenticated,
         checkPinAuth,
+        currentCurrency,
+        setCurrency,
         tables,
         updateTableStatus,
         updateTableNote,

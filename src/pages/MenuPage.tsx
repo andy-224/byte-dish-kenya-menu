@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, CurrencyType } from "@/contexts/CartContext";
 import MenuCard from "@/components/menu/MenuCard";
 import { mockMenuItems } from "@/data/mockData"; 
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import CallAssistanceButton from "@/components/menu/CallAssistanceButton";
+import { DollarSign, CreditCard } from "lucide-react";
 
 const MenuPage = () => {
   const [categories, setCategories] = useState<string[]>([]);
+  const { currentCurrency, setCurrency } = useCart();
   
   // Extract unique categories from menuItems
   useEffect(() => {
@@ -23,6 +25,11 @@ const MenuPage = () => {
     setCategories(uniqueCategories);
   }, []);
 
+  // Handle currency change
+  const toggleCurrency = () => {
+    setCurrency(currentCurrency === "USD" ? "KSH" : "USD");
+  };
+
   return (
     <div className="pb-8">
       <div className="text-center mb-8">
@@ -30,6 +37,28 @@ const MenuPage = () => {
         <p className="text-gray-400">
           Order directly from your phone
         </p>
+        
+        {/* Currency toggle button */}
+        <div className="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleCurrency}
+            className="glass-morphism border-white/10 text-sm flex items-center"
+          >
+            {currentCurrency === "USD" ? (
+              <>
+                <DollarSign className="h-4 w-4 mr-1" />
+                USD
+              </>
+            ) : (
+              <>
+                <CreditCard className="h-4 w-4 mr-1" />
+                KSH
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       
       <Tabs defaultValue={categories[0]} className="w-full">

@@ -157,6 +157,15 @@ const OrderManagement = () => {
     }
   };
   
+  // Format currency based on the order's currency type
+  const formatCurrency = (price: number, currency: string = "USD") => {
+    if (currency === "KSH") {
+      return `KSH ${price.toLocaleString()}`;
+    } else {
+      return `$${price.toLocaleString()}`;
+    }
+  };
+  
   const groupOrdersByDate = (orders: Order[]) => {
     const groups: Record<string, Order[]> = {};
     
@@ -257,7 +266,7 @@ const OrderManagement = () => {
                           <span className="mx-2 text-gray-500">•</span>
                           <span className="text-sm text-gray-400">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
                           <span className="mx-2 text-gray-500">•</span>
-                          <span className="text-sm text-gray-400">KES {order.totalPrice.toLocaleString()}</span>
+                          <span className="text-sm text-gray-400">{formatCurrency(order.totalPrice, order.currency)}</span>
                           <span className="mx-2 text-gray-500">•</span>
                           <span className="text-sm text-gray-400">{order.paymentMethod}</span>
                         </div>

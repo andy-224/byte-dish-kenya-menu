@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, CurrencyType } from "@/contexts/CartContext";
 import {
   Home,
   Settings,
@@ -17,10 +17,19 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import RealTimeQueueView from "@/components/admin/RealTimeQueueView";
 
 const AdminDashboard = () => {
-  const { orders, userRole } = useCart();
+  const { orders, userRole, currentCurrency } = useCart();
   const [pendingOrders, setPendingOrders] = useState(0);
   const [todayOrders, setTodayOrders] = useState(0);
   const [todayRevenue, setTodayRevenue] = useState(0);
+
+  // Format currency based on the current system setting
+  const formatCurrency = (price: number, currency: CurrencyType = currentCurrency) => {
+    if (currency === "KSH") {
+      return `KSH ${price.toLocaleString()}`;
+    } else {
+      return `$${price.toLocaleString()}`;
+    }
+  };
 
   // Calculate dashboard stats
   useEffect(() => {
@@ -67,7 +76,7 @@ const AdminDashboard = () => {
         <div className="neo-blur p-6 rounded-xl border border-white/10 flex items-center justify-between">
           <div>
             <div className="text-sm text-gray-400 mb-1">Today's Revenue</div>
-            <div className="text-3xl font-bold text-gradient">${todayRevenue.toFixed(2)}</div>
+            <div className="text-3xl font-bold text-gradient">{formatCurrency(todayRevenue)}</div>
           </div>
           <div className="h-14 w-14 rounded-full bg-green-500/20 flex items-center justify-center">
             <User className="h-6 w-6 text-green-400" />
