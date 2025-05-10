@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
 import MenuPage from '@/pages/MenuPage';
 import RepeatOrderOption from './RepeatOrderOption';
+import TableView from './menu/TableView';
 
 const MenuPageWrapper = () => {
   const { tableId } = useParams<{ tableId?: string }>();
@@ -18,7 +19,8 @@ const MenuPageWrapper = () => {
   }, [tableId, setTableId]);
   
   return (
-    <div>
+    <div className="container mx-auto px-4 py-4">
+      {tableId && <TableView tableId={tableId} />}
       {tableId && <RepeatOrderOption tableId={tableId} />}
       <MenuPage />
     </div>

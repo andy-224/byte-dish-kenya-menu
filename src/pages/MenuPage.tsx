@@ -19,12 +19,12 @@ const MenuPage = () => {
   useEffect(() => {
     const uniqueCategories = Array.from(
       new Set(mockMenuItems.map((item) => item.category))
-    ) as string[]; // Add type assertion to fix the unknown[] issue
+    ) as string[];
     setCategories(uniqueCategories);
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="pb-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2 text-gradient">Our Menu</h1>
         <p className="text-gray-400">
