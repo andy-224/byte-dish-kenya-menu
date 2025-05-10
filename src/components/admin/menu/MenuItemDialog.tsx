@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save } from "lucide-react";
-import ImageSelector from "@/components/admin/image-selector"; // Updated import path
+import { ImageSelector } from "@/components/admin/image-selector"; // Fixed import to use named export
 import { MenuItem } from "@/contexts/CartContext";
 
 interface Category {
