@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save } from "lucide-react";
-import ImageSelector from "@/components/admin/ImageSelector";
+import ImageSelector from "@/components/admin/image-selector"; // Updated import path
 import { MenuItem } from "@/contexts/CartContext";
 
 interface Category {
