@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import MenuCard from "@/components/menu/MenuCard";
 import { mockMenuItems } from "@/data/mockData"; 
@@ -11,21 +10,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import RepeatOrderOption from "@/components/RepeatOrderOption";
 import CallAssistanceButton from "@/components/menu/CallAssistanceButton";
 
 const MenuPage = () => {
-  const { tableId } = useParams<{ tableId: string }>();
-  const { setTableId } = useCart();
   const [categories, setCategories] = useState<string[]>([]);
-  
-  // Save the tableId when component mounts
-  useEffect(() => {
-    if (tableId) {
-      setTableId(tableId);
-      localStorage.setItem("currentTableId", tableId);
-    }
-  }, [tableId, setTableId]);
   
   // Extract unique categories from menuItems
   useEffect(() => {
@@ -40,12 +28,9 @@ const MenuPage = () => {
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2 text-gradient">Our Menu</h1>
         <p className="text-gray-400">
-          Table {tableId} • Order directly from your phone
+          Order directly from your phone
         </p>
       </div>
-      
-      {/* Add the RepeatOrderOption component here */}
-      {tableId && <RepeatOrderOption tableId={tableId} />}
       
       <Tabs defaultValue={categories[0]} className="w-full">
         <TabsList className="flex items-center w-full overflow-x-auto hide-scrollbar">
